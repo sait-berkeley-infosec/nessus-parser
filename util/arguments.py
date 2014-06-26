@@ -2,9 +2,11 @@
 import argparse
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Process Nessus CSVs')
-    parser.add_argument('filename', metavar='filename', type=str,
+    parser = argparse.ArgumentParser(description='Process Nessus reports')
+    parser.add_argument('filename', metavar='filename', type=str, nargs='?', default="",
             help="Nessus CSV file to parse.")
+    parser.add_argument('--api', dest='use_api',
+            action='store_true', help="Use the Nessus API instead of a CSV")
     parser.add_argument('--condense-java', dest='condense_java',
             action='store_true', help='combine all java-related vulns in to one category.')
     parser.add_argument('--condense-ms', dest='condense_ms',
@@ -31,4 +33,11 @@ def parse_arguments():
             help='use a file with a list of hostnames and nessus plugin ids that we don\'t care about')
     parser.set_defaults(condense_java=False, condense_ms=False, level='Critical', numeric_ids=False)
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    if args.filename and args.use_api:
+        parser.error("The API option may not be used with a filename.")
+    elif not args.filename and not args.use_api:
+        parser.error("Must be given a source to load from.")
+
+    return args

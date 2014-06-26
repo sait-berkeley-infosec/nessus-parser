@@ -12,7 +12,43 @@ from util.scandata import ScanData
 
 # Plugin ID,CVE,CVSS,Risk,Host,Protocol,Port,Name,Synopsis,Description,Solution,Plugin Output
 
-__author__ = "Maximilian Burkhardt, Lead Infosec 2012-2013 and Samuel Zhu, InfoSec Engineer 2013"
+__author__ = "Maximilian Burkhardt, Lead Infosec 2012-2013, Samuel Zhu, InfoSec Engineer 2013, Arlan Jaska InfoSec Engineer 2014"
+
+def load():
+    vuln_to_hosts = {}
+    id_to_name = {}
+    host_to_ip = {}
+    id_to_severity = {}
+    risk = { '0': "None", '1': "Low", '2': "Medium", '3': "High", '4': "Critical" }
+
+    import nessusapi.report, nessusinterface.session, nessusinterface.report
+    nessusinterface.session.authenticate()    
+    report = nessusinterface.report.select_report()
+    
+    hosts = nessusapi.report.list_hosts(report)
+    for host in hosts:
+        hostname = host['hostname']
+        try:
+            host_to_ip[hostname] = socket.getaddrinfo(hostname, 4444)[0][4][0]
+        except:
+            host_to_ip[hostname] = "IP N/A"
+    
+    vulns = nessusapi.report.list_vulns(report)
+    for vuln in vulns:
+        plugin_id = vuln['plugin_id']
+        id_to_name[plugin_id] = vuln['plugin_name']
+        id_to_severity[plugin_id] = risk[vuln['severity']]
+
+        # add entry to vuln_to_hosts for this vuln
+        vuln_to_hosts[plugin_id] = set()
+        hosts = nessusapi.report.list_affected_hosts(report, plugin_id, vuln['severity'])
+        for host in hosts:
+            vuln_to_hosts[plugin_id].add(host['hostname'])
+        
+    scandata = ScanData({}, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity)
+    scandata.rebuild_host_to_vulns()
+    return scandata
+
 
 def read(filename): 
     PID = 0

@@ -1,13 +1,20 @@
 #!/usr/bin/env python
 ## This script marshals the other parts of the parser
 
-from util.reader import read
+from util.reader import read, load
 from util.arguments import parse_arguments
 import util.statistics as statistics
 
 if __name__ == '__main__':
     args = parse_arguments()
-    csv_data = read(args.filename)
+
+    # load the data from either the api or a csv
+    if args.filename:
+        csv_data = read(args.filename)
+    else:
+        assert args.use_api
+        csv_data = load()
+        
     environ = {}
 
     # process options which set flags for other modules
