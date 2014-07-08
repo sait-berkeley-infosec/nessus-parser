@@ -5,6 +5,7 @@ def output(csv_data, environ):
             print vuln,
         else:
             print csv_data.id_to_name[vuln], 
+        print "(" + csv_data.id_to_severity[vuln] + ")",
         print "~~~~~"
         for host in hosts:
             print host, "\t\t", csv_data.host_to_ip[host]

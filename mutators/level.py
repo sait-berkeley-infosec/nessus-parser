@@ -1,12 +1,15 @@
 def mutate(csv_data, level, environ):
 
-    # first find all the vuln IDs that we don't care about
+    # Find all vulns that we don't care about, then remove them
+    # from the set.
     unacceptable_vulns = set()
     for vuln in csv_data.vuln_to_hosts.keys():
-        if csv_data.id_to_severity[vuln] != level:
+        vulnLevel = csv_data.id_to_severity[vuln]
+        if vulnLevel == 'None':
+            unacceptable_vulns.add(vuln)
+        elif level != 'All' and vulnLevel != level:
             unacceptable_vulns.add(vuln)
 
-    # remove these vulns from the vuln_to_hosts set
     for vuln in unacceptable_vulns:
         del csv_data.vuln_to_hosts[vuln]
     

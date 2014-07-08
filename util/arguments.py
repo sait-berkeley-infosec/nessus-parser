@@ -15,7 +15,8 @@ def parse_arguments():
             choices=['only', 'none'],
             help='output either ONLY Adobe vulnerabilities or NO Adobe vulnerabilities')
     parser.add_argument('--level', dest='level', type=str, 
-            choices=['Critical', 'High', 'Medium', 'Low', 'None'],
+            # Removing "None" here because it's mostly useless for how we display data.
+            choices=['All', 'Critical', 'High', 'Medium', 'Low'], #, 'None'],
             help='Show vulns of risk level <level>.')
     parser.add_argument('--filter-hostname', dest='hostname_regex', type=str,
             help='only show hostnames that match the regular expression <regex>. Suggested values: AEIO, SAS, etc. Keep things to one word, or be prepared to debug your regexes.')
