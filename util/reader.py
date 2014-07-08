@@ -22,7 +22,12 @@ def load():
     risk = { '0': "None", '1': "Low", '2': "Medium", '3': "High", '4': "Critical" }
 
     import nessusapi.report, nessusinterface.session, nessusinterface.report
-    nessusinterface.session.authenticate()    
+    while True:
+        try:
+            nessusinterface.session.authenticate()    
+            break
+        except nessusapi.session.AuthenticationError:
+            print "Bad credentials."
     report = nessusinterface.report.select_report()
     
     hosts = nessusapi.report.list_hosts(report)
