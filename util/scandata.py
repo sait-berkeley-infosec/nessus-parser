@@ -5,8 +5,16 @@ class ScanData:
         self.id_to_name = id_to_name
         self.host_to_ip = host_to_ip
         self.id_to_severity = id_to_severity
+        self.severity_to_int = {
+                'Critical': 1,
+                'High': 2,
+                'Medium': 3,
+                'Low': 4,
+                'None': 5
+        }
 
     # throw away the current host_to_vulns dictionary and rebuild it from vuln_to_hosts
+    # TODO: IMPLEMENT SORT STUFFS
     def rebuild_host_to_vulns(self):
         self.host_to_vulns = {}
         for vuln,hosts in self.vuln_to_hosts.iteritems():
@@ -23,3 +31,7 @@ class ScanData:
                 if vuln not in self.vuln_to_hosts:
                     self.vuln_to_hosts[vuln] = set()
                 self.vuln_to_hosts[vuln].add(host)
+
+    def severity_to_key(self, vuln):
+        level = self.id_to_severity[vuln]
+        return self.severity_to_int.get(level, 10)
