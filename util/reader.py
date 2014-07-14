@@ -50,10 +50,56 @@ def load():
         for host in hosts:
             vuln_to_hosts[plugin_id].add(host['hostname'])
         
-    scandata = ScanData({}, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity)
+    scandata = ScanData("Scan", {}, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity)
     scandata.rebuild_host_to_vulns()
     return scandata
 
+def carve(startTime, endTime):
+    """
+    Get all reports within a day of startTime. Then rebuild all of them
+    and return the array.
+    """
+    import nessusapi.report, nessusinterface.session, nessusinterface.report
+    while True:
+        try:
+            nessusinterface.session.authenticate()    
+            break
+        except nessusapi.session.AuthenticationError:
+            print "Bad credentials."
+
+    reports = nessusinterface.report.get_reports_between(startTime, endTime)
+    for i in range(len(reports)):
+        vuln_to_hosts = {}
+        id_to_name = {}
+        host_to_ip = {}
+        id_to_severity = {}
+        risk = { '0': "None", '1': "Low", '2': "Medium", '3': "High", '4': "Critical" }
+
+        report = reports[i]['name']
+        hosts = nessusapi.report.list_hosts(report)
+        for host in hosts:
+            hostname = host['hostname']
+            try:
+                host_to_ip[hostname] = socket.getaddrinfo(hostname, 4444)[0][4][0]
+            except:
+                host_to_ip[hostname] = "IP N/A"
+        
+        vulns = nessusapi.report.list_vulns(report)
+        for vuln in vulns:
+            plugin_id = vuln['plugin_id']
+            id_to_name[plugin_id] = vuln['plugin_name']
+            id_to_severity[plugin_id] = risk[vuln['severity']]
+
+            # add entry to vuln_to_hosts for this vuln
+            vuln_to_hosts[plugin_id] = set()
+            hosts = nessusapi.report.list_affected_hosts(report, plugin_id, vuln['severity'])
+            for host in hosts:
+                vuln_to_hosts[plugin_id].add(host['hostname'])
+            
+        scandata = ScanData(reports[i]['readableName'], {}, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity)
+        scandata.rebuild_host_to_vulns()
+        reports[i] = scandata
+    return reports
 
 def read(filename): 
     PID = 0
@@ -104,7 +150,7 @@ def read(filename):
                     vuln_to_hosts[row[PID]] = set()
                 vuln_to_hosts[row[PID]].add(row[HOST])
 
-        return ScanData(host_to_vulns, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity)
+        return ScanData("Scan", host_to_vulns, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity)
     except IOError:
         print "Error! CSV file was not successfully read."
         exit(1)

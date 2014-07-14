@@ -1,5 +1,6 @@
 class ScanData:
-    def __init__(self, host_to_vulns, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity):
+    def __init__(self, name, host_to_vulns, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity):
+        self.name = name
         self.host_to_vulns = host_to_vulns
         self.vuln_to_hosts = vuln_to_hosts
         self.id_to_name = id_to_name
@@ -14,7 +15,6 @@ class ScanData:
         }
 
     # throw away the current host_to_vulns dictionary and rebuild it from vuln_to_hosts
-    # TODO: IMPLEMENT SORT STUFFS
     def rebuild_host_to_vulns(self):
         self.host_to_vulns = {}
         for vuln,hosts in self.vuln_to_hosts.iteritems():

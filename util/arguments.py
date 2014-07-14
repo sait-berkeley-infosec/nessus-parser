@@ -18,6 +18,8 @@ def parse_arguments():
             # Removing "None" here because it's mostly useless for how we display data.
             choices=['All', 'Critical', 'High', 'Medium', 'Low'], #, 'None'],
             help='Show vulns of risk level <level>.')
+    # Given an int argument in the form of ddmmyyyy
+    parser.add_argument('--time', dest='time', type=str, help="get all reports during the following day. Values in form of DDMMYYYY")
     parser.add_argument('--filter-hostname', dest='hostname_regex', type=str,
             help='only show hostnames that match the regular expression <regex>. Suggested values: AEIO, SAS, etc. Keep things to one word, or be prepared to debug your regexes.')
     parser.add_argument('--filter-plugin', dest='plugin_list', type=str,
