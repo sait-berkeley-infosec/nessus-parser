@@ -66,16 +66,9 @@ if __name__ == '__main__':
             from mutators import exceptions
             exceptions.mutate(csv_data, args.exceptions_file, environ)
 
-        # print some statistics
-        print
-        print csv_data.name
-        print "="*len(csv_data.name)
-        print
-        statistics.output(csv_data)
-
         # process output modules
         from output import text
-        text.output(csv_data, environ)
+        text.output(csv_data, environ, statistics.output)
         if args.recipe_file:
             from output import create_rt_tickets
             create_rt_tickets.output(csv_data, args.recipe_file, environ)

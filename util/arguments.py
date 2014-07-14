@@ -7,6 +7,8 @@ def parse_arguments():
             help="Nessus CSV file to parse.")
     parser.add_argument('--api', dest='use_api',
             action='store_true', help="Use the Nessus API instead of a CSV")
+    parser.add_argument('--to', dest='destination', type=str,
+            help='destination to save the files to')
     parser.add_argument('--condense-java', dest='condense_java',
             action='store_true', help='combine all java-related vulns in to one category.')
     parser.add_argument('--condense-ms', dest='condense_ms',
