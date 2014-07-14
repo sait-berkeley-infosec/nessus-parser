@@ -28,7 +28,8 @@ def load():
             break
         except nessusapi.session.AuthenticationError:
             print "Bad credentials."
-    report = nessusinterface.report.select_report()
+    report_data = nessusinterface.report.select_report()
+    report = report_data['name']
     
     hosts = nessusapi.report.list_hosts(report)
     for host in hosts:
@@ -50,7 +51,7 @@ def load():
         for host in hosts:
             vuln_to_hosts[plugin_id].add(host['hostname'])
         
-    scandata = ScanData("Scan", {}, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity)
+    scandata = ScanData(report_data['readableName'], {}, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity)
     scandata.rebuild_host_to_vulns()
     return scandata
 
@@ -150,7 +151,7 @@ def read(filename):
                     vuln_to_hosts[row[PID]] = set()
                 vuln_to_hosts[row[PID]].add(row[HOST])
 
-        return ScanData("Scan", host_to_vulns, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity)
+        return ScanData("CSV Scan", host_to_vulns, vuln_to_hosts, id_to_name, host_to_ip, id_to_severity)
     except IOError:
         print "Error! CSV file was not successfully read."
         exit(1)
